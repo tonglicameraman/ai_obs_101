@@ -1,0 +1,66 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: travel-advisor
+  labels:
+    name: travel-advisor
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: travel-advisor
+  namespace: travel-advisor
+spec:
+  selector:
+    matchLabels:
+      name: travel-advisor
+  template:
+    metadata:
+      labels:
+        name: travel-advisor
+    spec:
+      containers:
+        - name: travel-advisor
+          image: thisthatdc/travel-advisor:v0.2.2
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: OLLAMA_ENDPOINT
+              value: "http://ollama.ollama"
+            - name: PINECONE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: pinecone
+                  key: api-key
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: secrets
+              readOnly: true
+              mountPath: "/etc/secrets"
+      volumes:
+        - name: secrets
+          projected:
+            sources:
+              - secret:
+                  name: dynatrace
+              - secret:
+                  name: pinecone
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: travel-advisor
+  namespace: travel-advisor
+spec:
+  type: NodePort
+  selector:
+    name: travel-advisor
+  ports:
+    - port: 80
+      name: http
+      targetPort: 8080
+      protocol: TCP
+      nodePort: 30100
