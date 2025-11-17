@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/vscode/devcontainers/base:bookworm as kind
+FROM mcr.microsoft.com/vscode/devcontainers/base:bookworm AS kind
 
 ARG USERNAME=vscode
 ARG USER_UID=1000

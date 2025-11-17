@@ -101,7 +101,7 @@ def prep_system():
 
     logger.info("Loading documents from PineCone...")
     vector = PineconeVectorStore.from_documents(
-        documents, index_name="travel-advisor", embedding=embeddings
+        documents, index_name="ai-obs-101", embedding=embeddings
     )
     retriever = vector.as_retriever()
 
