@@ -29,7 +29,8 @@
 				"gruntfuggly.todo-tree",
 				"mutantdino.resourcemonitor",
 				"humao.rest-client",
-				"ms-vscode.makefile-tools"
+				"ms-vscode.makefile-tools",
+				"ms-python.python"
 			]
 		}
 	},
