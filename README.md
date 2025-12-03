@@ -1,116 +1,29 @@
-# EasyTravel GPT Travel Advisor
+# <img src="https://cdn.bfldr.com/B686QPH3/at/w5hnjzb32k5wcrcxnwcx4ckg/Dynatrace_signet_RGB_HTML.svg?auto=webp&format=pngg" alt="DT logo" width="30"> Enablement Gen AI & LLM Observability
 
-Demo application for giving travel advice written in Python. Observability signals by [OpenTelemetry](https://opentelemetry.io).
+[![Davis CoPilot](https://img.shields.io/badge/Davis%20CoPilot-AI%20Powered-purple?logo=dynatrace&logoColor=white)](https://dynatrace-wwse.github.io/codespaces-framework/dynatrace-integration/#mcp-server-integration)
+[![dt-badge](https://img.shields.io/badge/Powered_by-DT_Enablement-8A2BE2?logo=dynatrace)](https://dynatrace-wwse.github.io/codespaces-framework/)
+[![Downloads](https://img.shields.io/docker/pulls/shinojosa/dt-enablement?logo=docker)](https://hub.docker.com/r/shinojosa/dt-enablement)
+![Integration tests](https://github.com/dynatrace-wwse/enablement-gen-ai-llm-observability/actions/workflows/integration-tests.yaml/badge.svg)
+[![Version](https://img.shields.io/github/v/release/dynatrace-wwse/enablement-gen-ai-llm-observability?color=blueviolet)](https://github.com/dynatrace-wwse/enablement-gen-ai-llm-observability/releases)
+[![Commits](https://img.shields.io/github/commits-since/dynatrace-wwse/enablement-gen-ai-llm-observability/latest?color=ff69b4&include_prereleases)](https://github.com/dynatrace-wwse/enablement-gen-ai-llm-observability/graphs/commit-activity)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg?color=green)](https://github.com/dynatrace-wwse/enablement-gen-ai-llm-observability/blob/main/LICENSE)
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-green)](https://dynatrace-wwse.github.io/enablement-gen-ai-llm-observability/)
 
-This demo application is modified for teaching purposes from the `ollama-pinecone` branch of the [Dynatrace demo project](https://github.com/Dynatrace/obslab-llm-observability/tree/ollama-pinecone).
+___
 
-Uses [Ollama](https://ollama.com/) and [PineCone](https://www.pinecone.io/) to generate advice for a given destination.
+Dynatrace Gen AI & LLM observability provides complete visibility into all aspects of LLMs, including applications, prompts, data sources, and outputs for LLMs' correct, consistent operation at all times across all domains. The Dynatrace Platform can:
 
-> **Note**
-> This product is not officially supported by Dynatrace!
+- Seamlessly integrate across the full AI application stack
+- Help reduce the cost and improve the performance of your AI and LLM stack
+- Build trust in LLM inputs and outputs
+- Explain and trace back your AI-powered application outputs
+- Reduce compliance risk for your Generative AI application
 
-## Application description
+<p align="center">
+    <img src="docs/img/ai_travel_advisor.jpg" alt="AI Travel Advisor" width="800"/>
+</p>
 
-## Architecture
+In this tutorial we will learn how it is easy to observe an AI application (AI Travel advisor) that uses [Ollama](https://ollama.com/) as Large Language Model, [Weaviate](https://weaviate.io/) as Vector Database, and [LangChain](https://www.langchain.com/) as an orchestrator to create [Retrieval augmented generation (RAG)](https://python.langchain.com/docs/concepts/rag/) and [Agentic](https://python.langchain.com/docs/concepts/agents/) AI Pipelines.
 
-![RAG Architecture diagram](./docs/images/rag-architecture.jpg)
-
-## Sequence Diagram
-
-```mermaid
-sequenceDiagram
-    actor Users
-    participant UI as Travel Recommendation UI
-    participant RAG as RAG Pipeline
-    participant OLLAMA as Ollama (Orca Mini)
-    participant Pinecone@{ "type" : "database"}
-
-    Users->>UI: Submits a request
-    UI->>RAG: Forwards request
-    RAG->>RAG: Generates prompt based on request
-    RAG->>OLLAMA: Requests embeddings vector assocaited to the prompt
-    OLLAMA->>RAG: Embeddings vector
-    RAG->>Pinecone: Searches for most relevant documents
-    Pinecone->>RAG: Content of most relevant documents
-    RAG->>OLLAMA: Sends a prompt enriched with context from relevant documents
-    OLLAMA->>RAG: Sends a reply
-    RAG->>RAG: Validates response and formats its reply back to the UI
-    RAG->>UI: Reply
-    UI->>Users: Reply
-```
-
-## Configure Pinecone (in case you don't have an index yet)
-
-<details>
-
-<summary>:warning: **A Pinecone index should already be set up for the class & you should be able to skip this section.**</summary>
-
-Head over to https://app.pinecone.io/ and login into your account.
-
-1. Create a new index called `travel-advisor` with the dimensions of **3200** and a `cosine` metric.
-
-   The index will store our knowledge source, which the RAG pipeline will use to augment the LLM's output of the travel recommendation.
-   The parameter 3200 is because for this demo, we are using the embedding model `orca-mini:3b` which returns vector of 3200 elements.
-
-   ![Pinecone Index Creation](https://dt-cdn.net/images/pinecone-index-creation-1061-dab900f5ff.png)
-
-2. After creating and running the index, we can create an API key to connect.
-
-   Follow the [Pinecone documentation on authentication](https://dt-url.net/ji63ugh) to get the API key to connect to your Pinecone index and store it as Kubernetes secrets with the following command:
-
-</details>
-
-## Try it out yourself
-
-[![Open "RAG" version in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/dynatrace-perfclinics/obslab-llm-observability?ref=ollama-pinecone)
-
-## Developer Information Below
-
-### Run Locally
-
-Start [Ollama](https://github.com/ollama/ollama) locally by running `ollama serve`. 
-For this example, we'll use a simple model, `orca-mini:3b`.
-You can pull it running `ollama run orca-mini:3b`.
-Afterwards, if [Docker](https://docs.docker.com/engine/install/) or [Podman](https://podman.io/docs/installation) are installed. you can start the application locally by running `run_local.sh` script after adjusting the environment variables in the script.
-
-```bash
-#!/bin/bash
-
-# Set environment variables
-export PINECONE_API_KEY=<YOUR_PINECONE_API_KEY>
-export OTEL_ENDPOINT=https://<YOUR_DYNATRACE_TENANT>.dynatracelabs.com/api/v2/otlp
-export API_TOKEN=<YOUR_DYNATRACE_API_TOKEN>
-export OLLAMA_ENDPOINT="http://host.docker.internal:11434" # Pointing to local Ollama instance, adjust if necessary
-
-docker build -t ai_obs_101 . && docker run --rm \
-  -e PINECONE_API_KEY \
-  -e OTEL_ENDPOINT \
-  -e API_TOKEN \
-  -e OLLAMA_ENDPOINT \
-  -p 8080:8080 \
-  ai_obs_101:latest
-```
-
---------------------------
-
-### Deploy on a Local K8S Cluster
-
-You will need [Docker](https://docs.docker.com/engine/install/) or [Podman](https://podman.io/docs/installation) installed.
-
-Create a cluster if you do not already have one:
-```bash
-kind create cluster --config .devcontainer/kind-cluster.yml --wait 300s
-```
-
-Customise and set some environment variables
-
-```bash
-export PINECONE_API_KEY=<YOUR_PINECONE_KEY> 
-export DT_ENDPOINT=https://<YOUR_DT_TENANT>.live.dynatrace.com
-export DT_TOKEN=<YOUR_DT_TOKEN>
-```
-
-Run the deployment script:
-```bash
-.devcontainer/deployment.sh
-```
+Ready to learn more about Gen AI & LLM Observability? 
+## [Yes, let's start the enablement!](https://dynatrace-wwse.github.io/enablement-gen-ai-llm-observability)
